@@ -1,0 +1,276 @@
+/**
+ * @fileoverview Hoja de estilos principal del Sistema Phaethon.
+ * Combina patrones de diseño "Retro-Industrial" con técnicas CSS modernas
+ * como Glassmorphism (Backdrop-filter) y Pseudo-elementos (::after) 
+ * para emular hardware analógico (CRT).
+ */
+
+/* =======================================================
+   VARIABLES GLOBALES (Custom Properties)
+   Paleta de colores de alto contraste sobre bases oscuras.
+   ======================================================= */
+:root {
+    --rp-bg-pizarra: #1A1D20;    /* Pizarra industrial oscura (Fondo base fallback) */
+    --rp-brick-red: #A33A36;     /* Ladrillo carmesí carismático (Acentos) */
+    --rp-yellow-warm: #FFD400;   /* Amarillo neón cálido (Highlights y botones) */
+    --rp-text-main: #E6E1DC;     /* Crema suave (Texto primario legible) */
+    --rp-text-muted: #8C847A;    /* Marrón grisáceo (Texto secundario) */
+    --rp-border: #3A3633;        /* Bordes metálicos oscuros */
+    --rp-canvas-bg: #0D0C0B;     /* Pantalla oscura (Color base del monitor) */
+    --rp-accent-cian: #00FFEA;   /* Cian neón nítido (Esferas y retículas) */
+    --rp-accent-red: #FF3366;    /* Rojo neón nítido (Estado de colisión) */
+}
+
+/* =======================================================
+   ESTRUCTURA DEL DOCUMENTO (Viewport & Scroll)
+   ======================================================= */
+body.rp-theme {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--rp-bg-pizarra);
+    
+    /* Composición del fondo (Z-Index estático):
+      Capa 1 (Arriba): Filtro radial para generar un viñeteado oscuro central.
+      Capa 2 (Abajo): Textura repetida simulando pared de ladrillo.
+    */
+    background-image: 
+        radial-gradient(circle at 10% 10%, rgba(26,29,32, 0.9) 0%, rgba(10,10,10, 1) 100%),
+        url('https://www.transparenttextures.com/patterns/brick-wall-dark.png'); 
+    
+    background-attachment: fixed; /* Mantiene el fondo estático durante el scroll */
+    background-size: cover;
+    color: var(--rp-text-main);
+    
+    /* Configuración de barra de desplazamiento delegada al navegador */
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+/* =======================================================
+   TIPOGRAFÍA GENERAL
+   ======================================================= */
+.rp-title {
+    color: var(--rp-text-main);
+    letter-spacing: -1px;
+    text-shadow: 0 0 30px rgba(255, 212, 0, 0.2); /* Difusión de luz trasera */
+}
+
+.rp-subtitle {
+    color: var(--rp-text-muted);
+    font-size: 1.15rem;
+}
+
+/* =======================================================
+   COMPONENTES DE LA INTERFAZ UI (Glassmorphism)
+   ======================================================= */
+
+/* 1. Barra de Navegación */
+.rp-navbar {
+    background-color: rgba(15, 18, 21, 0.85); /* Tinte base translúcido */
+    border-bottom: 3px solid var(--rp-brick-red);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.6);
+    /* El backdrop-filter aplica un desenfoque (blur) y saturación
+       a los píxeles renderizados justo detrás de este elemento */
+    backdrop-filter: blur(10px) saturate(120%);
+    -webkit-backdrop-filter: blur(10px) saturate(120%); /* Soporte Safari */
+}
+
+.rp-brand {
+    color: var(--rp-text-main);
+    letter-spacing: 2px;
+    font-weight: 800;
+}
+
+/* Icono del logo con triple sombra paralela para emular emisión de luz (Neón) */
+.rp-logo-icon {
+    color: var(--rp-yellow-warm);
+    font-size: 1.4rem;
+    text-shadow: 
+        0 0 5px var(--rp-yellow-warm),
+        0 0 15px var(--rp-yellow-warm),
+        0 0 25px rgba(255,212,0,0.3);
+}
+
+/* 2. Botones y Badges (Componentes interactivos) */
+.rp-badge {
+    background-color: rgba(0, 255, 234, 0.05);
+    color: var(--rp-accent-cian);
+    border: 2px solid var(--rp-accent-cian);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+.rp-btn-outline {
+    color: var(--rp-yellow-warm);
+    border: 2px solid var(--rp-yellow-warm);
+    font-family: 'Space Mono', monospace;
+    font-weight: bold;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.rp-btn-outline:hover {
+    background-color: var(--rp-yellow-warm);
+    color: #0A0909;
+    box-shadow: 0 0 20px rgba(255, 212, 0, 0.5); /* Emisión focal de luz cálida */
+}
+
+/* 3. Tarjetas Contenedoras (Cajas VHS / Consola de Hardware) */
+.rp-card {
+    background-color: rgba(31, 34, 38, 0.8);
+    border: 3px solid var(--rp-border);
+    border-radius: 20px;
+    /* Sombra exterior pesada y sombra interior sutil para volumen 3D */
+    box-shadow: 
+        10px 10px 30px rgba(0,0,0,0.6),
+        inset -5px -5px 20px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    overflow: hidden;
+    
+    /* Configuración avanzada de Glassmorphism (Efecto Acrílico Oscuro) */
+    backdrop-filter: blur(15px) saturate(150%) brightness(90%); 
+    -webkit-backdrop-filter: blur(15px) saturate(150%) brightness(90%);
+    
+    /* Inyección de una imagen SVG generada en Base64 para simular una grilla metálica */
+    background-image: 
+        radial-gradient(circle at 10% 10%, rgba(41,45,50,0.4) 0%, rgba(31,34,38,0) 100%),
+        url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48ZyBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiM4Yzc4NjQiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTAgMGg0MHY0MEgwVjB6bTIwIDIwaDIwdjIwSDIWMjB6TTAgMjBoMjB2MjBIMFYyMHoyMCAwaDIwdjIwSDIwVjB6Ii8+PC9nPjwvZz48L3N2Zz4=');
+}
+
+/* Pseudo-clase hover para feedback visual de interacción */
+.rp-card:hover {
+    transform: translateY(-5px); 
+    border-color: var(--rp-brick-red);
+}
+
+.rp-card-header {
+    background-color: rgba(163, 58, 54, 0.15); 
+    border-bottom: 2px solid var(--rp-border);
+    color: var(--rp-text-main);
+    letter-spacing: 1px;
+}
+
+/* =======================================================
+   FORMULARIOS Y EVENTOS DE INTERFAZ (UI Controls)
+   Reescribiendo las variables nativas del input range y checkbox
+   ======================================================= */
+.rp-slider {
+    accent-color: var(--rp-yellow-warm);
+    cursor: crosshair;
+}
+
+.rp-slider::-webkit-slider-thumb {
+    background: var(--rp-brick-red);
+    border: 2px solid var(--rp-yellow-warm);
+    box-shadow: 0 0 10px rgba(255, 212, 0, 0.5);
+}
+
+.rp-switch {
+    width: 3em !important;
+    height: 1.5em !important;
+    background-color: #2A2826 !important;
+    border: 2px solid var(--rp-border) !important;
+    cursor: pointer;
+    box-shadow: inset 0 0 5px rgba(0,0,0,1);
+}
+
+.rp-switch:checked {
+    background-color: var(--rp-brick-red) !important;
+    border-color: var(--rp-yellow-warm) !important;
+    box-shadow: 0 0 15px rgba(255, 51, 102, 0.5) !important;
+}
+
+/* =======================================================
+   MONITOR CRT Y RENDERIZADO VISUAL
+   ======================================================= */
+   
+/* Contenedor que simula el marco plástico de un televisor viejo */
+.canvas-wrapper {
+    background-color: #0A0A09;
+    padding: 15px;
+    border-radius: 15px;
+    border: 3px solid #2A2826;
+    position: relative;
+    display: inline-block;
+    /* Sombra de hundimiento extremo (inset) */
+    box-shadow: 
+        inset 0 0 25px rgba(0,0,0,1),
+        0 8px 25px rgba(0,0,0,0.7);
+    /* Foco de luz central en el cristal */
+    background-image: radial-gradient(circle at 50% 10%, rgba(255, 212, 0, 0.15) 0%, rgba(10,10,10,1) 100%);
+}
+
+/* Efecto visual CRT avanzado:
+  Usamos un pseudo-elemento invisible (::after) con 'pointer-events: none' 
+  para dibujar líneas negras horizontales sobre el lienzo sin bloquear los clics.
+*/
+.canvas-wrapper::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 15px; left: 15px; right: 15px; bottom: 15px;
+    /* Patrón de líneas alternadas para simular el barrido de electrones */
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
+    background-size: 100% 6px; 
+    z-index: 2;
+    pointer-events: none;
+    border-radius: 6px;
+}
+
+/* El lienzo HTML nativo donde dibuja JavaScript */
+.rp-canvas {
+    background-color: var(--rp-canvas-bg) !important;
+    border-radius: 6px;
+    display: block;
+    width: 260px; 
+    height: 260px;
+    /* Resplandor externo de los fósforos */
+    box-shadow: 0 0 15px rgba(0,229,255,0.05);
+}
+
+/* =======================================================
+   ESTILOS DE LECTURA (Terminal empotrada)
+   ======================================================= */
+.rp-tech-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--rp-text-main);
+    line-height: 1.6;
+    background-color: rgba(16, 18, 20, 0.9); 
+    padding: 1.4rem;
+    border-radius: 10px;
+    border: 2px solid var(--rp-border);
+    border-left: 5px solid var(--rp-brick-red); /* Acento estructural izquierdo */
+    
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.rp-status {
+    color: var(--rp-yellow-warm);
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 10px rgba(255,212,0,0.2);
+}
+
+/* =======================================================
+   PIE DE PÁGINA (Footer)
+   ======================================================= */
+.rp-footer {
+    background-color: rgba(15, 18, 21, 0.95);
+    border-top: 3px solid var(--rp-border);
+    width: 100%;
+}
+
+.rp-tech-text-footer {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--rp-text-muted);
+    letter-spacing: 1px;
+}
+
+.rp-highlight {
+    color: var(--rp-yellow-warm);
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(255,212,0,0.2);
+}

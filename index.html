@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detección de Colisiones 2D</title>
+    
+    <link rel="shortcut icon" href="./assets/img/bouncingball.png" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body class="rp-theme d-flex flex-column min-vh-100">
+
+    <nav class="navbar rp-navbar shadow-lg">
+        <div class="container-fluid px-4 py-2">
+            <span class="navbar-brand mb-0 h1 fw-bold rp-brand d-flex align-items-center">
+                <span class="rp-logo-icon me-2">▶</span> RANDOM PLAY LABS
+            </span>
+            <div class="d-flex align-items-center">
+                <span class="badge rp-badge me-3 px-3 py-2">SISTEMA EN LÍNEA</span>
+                <a href="https://github.com/Git-Gutz" target="_blank" class="btn rp-btn-outline btn-sm px-3">Proxy: @Git-Gutz</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="container text-center py-5">
+        <h1 class="display-5 fw-bold rp-title">Sistema de Detección de Colisiones</h1>
+        <p class="mx-auto rp-subtitle mt-3" style="max-width: 700px;">
+            Entorno de pruebas renderizado con la API Canvas. Sistema analógico para la evaluación vectorial de trayectorias, intersecciones y transferencia de momento lineal.
+        </p>
+    </header>
+
+    <main class="container flex-grow-1 pb-5">
+    
+    <div class="row mb-4 justify-content-center">
+        <div class="col-lg-8">
+            <div class="card rp-card p-3 px-4 d-flex flex-md-row align-items-center justify-content-between gap-3" style="border-radius: 12px;">
+                
+                <div class="rp-tech-text border-0 p-0 m-0 bg-transparent text-center w-100">
+                    <span class="rp-status">[TELEMETRÍA DE COMBATE]</span><br>
+                    NIVEL ACTUAL: <span id="lblNivel" class="rp-highlight fs-5">1</span> <br>
+                    OBJETIVOS PURGADOS: <span id="lblEliminados" class="rp-highlight fs-5">0</span> 
+                    (<span id="lblPorcentaje" class="rp-highlight">0%</span>)
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8 text-center">
+            <div class="card rp-card">
+                <div class="card-header rp-card-header text-center pt-3">
+                    <h5 class="fw-bold mb-0 text-uppercase">Área de Intersección 2D</h5>
+                </div>
+                <div class="card-body d-flex flex-column align-items-center">
+                    <div class="canvas-wrapper mb-3 mx-auto">
+                        <canvas id="canvasGame" class="rp-canvas" width="400" height="400"></canvas>
+                    </div>
+                    <div class="rp-tech-text w-100 text-start">
+                        > REGLAS DE NEGOCIO ACTIVAS:<br>
+                        > 1. Detectar coordenadas (Hover = Cambio de color).<br>
+                        > 2. Clic = Desaparición gradual.<br>
+                        > 3. Flujo vertical ascendente (En proceso...).
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+    <footer class="rp-footer py-4 mt-auto">
+        <div class="container text-center rp-tech-text-footer">
+            SISTEMA DESARROLLADO POR <span class="rp-highlight fw-bold">LEONARDO</span> // INGENIERÍA EN SISTEMAS COMPUTACIONALES <br>
+            INSTITUTO TECNOLÓGICO DE PACHUCA | <span class="text-white">PHAETHON ARCHIVES</span>
+        </div>
+    </footer>
+
+    <script src="./assets/js/controles.js"></script>
+    <script src="./assets/js/main_circulos.js"></script>
+    <script src="./assets/js/main_colision.js"></script>
+    <script src="./assets/js/main_rebote.js"></script>
+</body>
+</html>
