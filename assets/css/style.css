@@ -27,18 +27,17 @@
 body.rp-theme {
     font-family: 'Outfit', sans-serif;
     background-color: var(--rp-bg-pizarra);
-    
+     /* Mantenemos la capa oscura arriba y ponemos tu imagen abajo */
+   background-image: 
 
-    
+    url('../img/godfinger_wpp.png'); /* Fíjate en el ../ al inicio */ /* <-- ¡CAMBIA ESTA RUTA POR TU IMAGEN! */
     background-attachment: fixed;
     background-size: cover;
-    background-position: center; /* Añade esto para centrar la imagen */
+    background-position: center;
     color: var(--rp-text-main);
-    
-    overflow-x: hidden;
-    overflow-y: auto;
-}
 
+    overflow: hidden;
+}
 /* =======================================================
    TIPOGRAFÍA GENERAL
    ======================================================= */
@@ -274,4 +273,27 @@ body.rp-theme {
     color: var(--rp-yellow-warm);
     font-weight: bold;
     text-shadow: 0 0 10px rgba(255,212,0,0.2);
+}
+/* Esto le dice al navegador: "Déjame mover esto donde yo quiera" */
+.panel-libre {
+    position: absolute;
+    z-index: 10; 
+}
+
+/* --- CONTROL DEL CUADRO DE TELEMETRÍA --- */
+#cuadro-telemetria {
+    width: 450px;   /* Ancho fijo para que no se deforme */
+    
+    /* MODIFICA ESTAS VARIABLES PARA MOVERLO: */
+    top:  1%;       /* Distancia desde arriba */
+    right: 3.5%       /* Distancia desde la derecha */
+}
+
+/* --- CONTROL DEL MONITOR (CANVAS) --- */
+#cuadro-monitor {
+    width: 480px;   /* Ancho fijo para que no se deforme */
+    
+    /* MODIFICA ESTAS VARIABLES PARA MOVERLO: */
+    top: 20%;       /* Distancia desde arriba */
+    right: 3%;      /* Distancia desde la derecha */
 }

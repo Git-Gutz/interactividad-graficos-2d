@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./assets/css/style.css">
 </head>
-<body class="rp-theme d-flex flex-column min-vh-100">
+<body class="rp-theme d-flex flex-column vh-100 overflow-hidden">
 
     <nav class="navbar rp-navbar shadow-lg">
         <div class="container-fluid px-4 py-2">
@@ -24,50 +24,45 @@
         </div>
     </nav>
 
-    <header class="container text-center py-5">
-        <h1 class="display-5 fw-bold rp-title">Sistema de Detección de Colisiones</h1>
+    <header class="container text-center py-2">
+        <h1 class="display-5 fw-bold rp-title">Interactividad con gráficos 2D</h1>
         <p class="mx-auto rp-subtitle mt-3" style="max-width: 700px;">
-            Entorno de pruebas renderizado con la API Canvas. Sistema analógico para la evaluación vectorial de trayectorias, intersecciones y transferencia de momento lineal.
+            
         </p>
     </header>
 
-    <main class="container flex-grow-1 pb-5">
+   <main class="container-fluid position-relative vh-100 overflow-hidden">
     
-    <div class="row mb-4 justify-content-center">
-        <div class="col-lg-8">
-            <div class="card rp-card p-3 px-4 d-flex flex-md-row align-items-center justify-content-between gap-3" style="border-radius: 12px;">
-                
-                <div class="rp-tech-text border-0 p-0 m-0 bg-transparent text-center w-100">
-                    <span class="rp-status">[TELEMETRÍA DE COMBATE]</span><br>
-                    NIVEL ACTUAL: <span id="lblNivel" class="rp-highlight fs-5">1</span> <br>
-                    OBJETIVOS PURGADOS: <span id="lblEliminados" class="rp-highlight fs-5">0</span> 
-                    (<span id="lblPorcentaje" class="rp-highlight">0%</span>)
-                </div>
-
+    <div id="cuadro-telemetria" class="panel-libre">
+        <div class="card rp-card p-3 px-4 d-flex flex-md-row align-items-center justify-content-between gap-3" style="border-radius: 12px;">
+            <div class="rp-tech-text border-0 p-0 m-0 bg-transparent text-center w-100">
+                <span class="rp-status">[TELEMETRÍA DE COMBATE]</span><br>
+                NIVEL ACTUAL: <span id="lblNivel" class="rp-highlight fs-5">1</span> <br>
+                OBJETIVOS PURGADOS: <span id="lblEliminados" class="rp-highlight fs-5">0</span> 
+                (<span id="lblPorcentaje" class="rp-highlight">0%</span>)
             </div>
         </div>
     </div>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8 text-center">
-            <div class="card rp-card">
-                <div class="card-header rp-card-header text-center pt-3">
-                    <h5 class="fw-bold mb-0 text-uppercase">Área de Intersección 2D</h5>
+    <div id="cuadro-monitor" class="panel-libre">
+        <div class="card rp-card">
+            <div class="card-header rp-card-header text-center pt-3">
+                <h5 class="fw-bold mb-0 text-uppercase">Up-Pop</h5>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center">
+                <div class="canvas-wrapper mb-3 mx-auto">
+                    <canvas id="canvasGame" class="rp-canvas" width="400" height="400"></canvas>
                 </div>
-                <div class="card-body d-flex flex-column align-items-center">
-                    <div class="canvas-wrapper mb-3 mx-auto">
-                        <canvas id="canvasGame" class="rp-canvas" width="400" height="400"></canvas>
-                    </div>
-                    <div class="rp-tech-text w-100 text-start">
-                        > REGLAS DE NEGOCIO ACTIVAS:<br>
-                        > 1. Detectar coordenadas (Hover = Cambio de color).<br>
-                        > 2. Clic = Desaparición gradual.<br>
-                        > 3. Flujo vertical ascendente (En proceso...).
-                    </div>
+                <div class="rp-tech-text w-100 text-start" style="font-size: 0.75rem;">
+                    > REGLAS DE NEGOCIO ACTIVAS:<br>
+                    > 1. Detectar coordenadas (Hover).<br>
+                    > 2. Clic = Desaparición gradual.<br>
+                    > 3. Flujo vertical ascendente.
                 </div>
             </div>
         </div>
     </div>
+
 </main>
 
     <footer class="rp-footer py-4 mt-auto">
