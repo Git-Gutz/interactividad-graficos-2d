@@ -5,7 +5,7 @@
  */
 (() => {
     // Nota: Se unificó todo bajo 'canvasC' para evitar conflictos de IDs
-    const canvas = document.getElementById("canvasC");
+    const canvas = document.getElementById("canvasGame");
     const ctx = canvas.getContext("2d");
     canvas.height = 300; canvas.width = 300;
 

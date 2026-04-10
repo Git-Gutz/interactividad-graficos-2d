@@ -28,19 +28,13 @@ body.rp-theme {
     font-family: 'Outfit', sans-serif;
     background-color: var(--rp-bg-pizarra);
     
-    /* Composición del fondo (Z-Index estático):
-      Capa 1 (Arriba): Filtro radial para generar un viñeteado oscuro central.
-      Capa 2 (Abajo): Textura repetida simulando pared de ladrillo.
-    */
-    background-image: 
-        radial-gradient(circle at 10% 10%, rgba(26,29,32, 0.9) 0%, rgba(10,10,10, 1) 100%),
-        url('https://www.transparenttextures.com/patterns/brick-wall-dark.png'); 
+
     
-    background-attachment: fixed; /* Mantiene el fondo estático durante el scroll */
+    background-attachment: fixed;
     background-size: cover;
+    background-position: center; /* Añade esto para centrar la imagen */
     color: var(--rp-text-main);
     
-    /* Configuración de barra de desplazamiento delegada al navegador */
     overflow-x: hidden;
     overflow-y: auto;
 }
@@ -72,6 +66,13 @@ body.rp-theme {
        a los píxeles renderizados justo detrás de este elemento */
     backdrop-filter: blur(10px) saturate(120%);
     -webkit-backdrop-filter: blur(10px) saturate(120%); /* Soporte Safari */
+    .rp-brand {
+    font-family: 'Press Start 2P', cursive; /* Inyectamos la fuente retro */
+    color: var(--rp-text-main);
+    letter-spacing: 0px; /* Le quitamos el espaciado extra porque esta fuente ya es ancha */
+    font-size: 1rem; /* Ajustamos el tamaño para que encaje bien */
+    text-shadow: 0 0 10px rgba(255, 212, 0, 0.4); /* Un resplandor sutil */
+}
 }
 
 .rp-brand {
