@@ -278,6 +278,7 @@ body.rp-theme {
 .panel-libre {
     position: absolute;
     z-index: 10; 
+    
 }
 
 /* --- CONTROL DEL CUADRO DE TELEMETRÍA --- */
@@ -288,12 +289,21 @@ body.rp-theme {
     top:  1%;       /* Distancia desde arriba */
     right: 3.5%       /* Distancia desde la derecha */
 }
+/* --- CONTROL DE LA CONSOLA DE COMANDOS --- */
+#cuadro-controles {
+    width: 480px;   /* Exactamente el mismo ancho que el monitor para que se vea alineado */
+    
+    /* Lo anclamos a la esquina inferior derecha */
+    bottom: 3%;       
+    right: 3%;      
+    left: auto;     /* Limpiamos la regla anterior de la izquierda */
+}
 
 /* --- CONTROL DEL MONITOR (CANVAS) --- */
 #cuadro-monitor {
     width: 480px;   /* Ancho fijo para que no se deforme */
     
     /* MODIFICA ESTAS VARIABLES PARA MOVERLO: */
-    top: 20%;       /* Distancia desde arriba */
+    top: 17%;       /* Distancia desde arriba */
     right: 3%;      /* Distancia desde la derecha */
 }

@@ -47,7 +47,7 @@
     <div id="cuadro-monitor" class="panel-libre">
         <div class="card rp-card">
             <div class="card-header rp-card-header text-center pt-3">
-                <h5 class="fw-bold mb-0 text-uppercase">Up-Pop</h5>
+                <h5 class="fw-bold mb-0 text-uppercase"> !No las dejes subir!</h5>
             </div>
             <div class="card-body d-flex flex-column align-items-center">
                 <div class="canvas-wrapper mb-3 mx-auto">
@@ -59,6 +59,35 @@
                     > 2. Clic = Desaparición gradual.<br>
                     > 3. Flujo vertical ascendente.
                 </div>
+            </div>
+        </div>
+    </div>
+   <div id="cuadro-controles" class="panel-libre">
+        <div class="card rp-card p-3 d-flex flex-column gap-2" style="border-radius: 12px;">
+            
+            <button id="btnPausa" class="btn rp-btn-outline w-100 fw-bold py-2 fs-6">⏸️ PAUSAR SISTEMA</button>
+
+            <div class="d-flex flex-row gap-2 w-100 mt-1">
+                
+                <select id="selDificultad" class="form-select rp-tech-text text-center fw-bold w-50" style="cursor: pointer; font-size: 0.75rem;">
+                    <option value="facil">👼 FÁCIL</option>
+                    <option value="normal" selected>😊 NORMAL</option>
+                    <option value="dificil">😈 DIFÍCIL</option>
+                </select>
+
+                <select id="selNivel" class="form-select rp-tech-text text-center fw-bold w-50" style="cursor: pointer; font-size: 0.75rem;">
+                    <option value="1">NIVEL 1</option>
+                    <option value="2">NIVEL 2</option>
+                    <option value="3">NIVEL 3</option>
+                    <option value="4">NIVEL 4</option>
+                    <option value="5">NIVEL 5</option>
+                    <option value="6">NIVEL 6</option>
+                    <option value="7">NIVEL 7</option>
+                    <option value="8">NIVEL 8</option>
+                    <option value="9">NIVEL 9</option>
+                    <option value="10">NIVEL 10</option>
+                </select>
+                
             </div>
         </div>
     </div>
