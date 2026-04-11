@@ -14,23 +14,17 @@
     let totalEliminated = 0;
     let spawnedThisLevel = 0;
     let spawnInterval;
-    let transitionTimeout; // NUEVO: Para controlar el tiempo de espera entre niveles
+    let transitionTimeout; 
     
     // Banderas de estado
     let isMainMenu = true; 
     let isGameOver = false;
     let isPaused = false;
-    let isTransitioning = false; // NUEVO: Pantalla entre niveles
-    let isGameWon = false;       // NUEVO: Pantalla final
+    let isTransitioning = false; 
+    let isGameWon = false;       
 
     // Multiplicador de dificultad inicial 
     let diffScale = 1.0; 
-
-    // Carga de imagen de fondo táctico
-    const bgImage = new Image();
-    bgImage.src = 'https://i.imgur.com/kF2A8K4.png'; 
-    let isBgLoaded = false;
-    bgImage.onload = () => { isBgLoaded = true; };
 
     // --- FUNCIONES DE CONTROL DE ESTADO ---
 
@@ -50,7 +44,6 @@
     // --- LISTENERS DE LA CONSOLA ---
     
     document.getElementById('btnPausa').addEventListener('click', (e) => {
-        // Evitamos pausar mientras cambia de nivel o si ya ganó/perdió
         if (isMainMenu || isGameOver || isGameWon || isTransitioning) return; 
         if (isPaused) unpauseSystem();
         else pauseSystem();
@@ -76,7 +69,6 @@
         document.getElementById('lblPorcentaje').innerText = Math.round((totalEliminated / totalPosibles) * 100) + '%';
 
         if (!isMainMenu && !isGameOver && !isGameWon) {
-            // Si estaba en medio de una transición, la cancelamos y pausamos
             if (isTransitioning) {
                 clearTimeout(transitionTimeout);
                 isTransitioning = false;
@@ -195,11 +187,9 @@
         const valDif = document.getElementById('selDificultad').value;
         diffScale = valDif === 'facil' ? 1.5 : (valDif === 'dificil' ? 0.6 : 1.0);
 
-        // Resetea las eliminaciones según el nivel
         totalEliminated = (currentLevel - 1) * CIRCLES_PER_LEVEL;
         document.getElementById('lblEliminados').innerText = totalEliminated;
         
-        // --- CORRECCIÓN: Fuerza la actualización del porcentaje en la pantalla ---
         const totalPosibles = MAX_LEVELS * CIRCLES_PER_LEVEL;
         document.getElementById('lblPorcentaje').innerText = Math.round((totalEliminated / totalPosibles) * 100) + '%';
         
@@ -256,24 +246,19 @@
             return; 
         }
 
-        // Si está en transición, bloqueamos los clics
         if (isTransitioning) return;
 
-        // Lógica de menús (Pausa, Game Over y Game Won usan los mismos 3 botones)
         if (isPaused || isGameOver || isGameWon) {
-            // Hitbox REINTENTAR 
             if (mouse.x >= centerX - 160 && mouse.x <= centerX - 10 &&
                 mouse.y >= centerY + 50 && mouse.y <= centerY + 95) {
                 arrancarPartida(); 
                 return;
             }
-            // Hitbox SALIR 
             if (mouse.x >= centerX + 10 && mouse.x <= centerX + 160 &&
                 mouse.y >= centerY + 50 && mouse.y <= centerY + 95) {
                 pararJuego(); 
                 return;
             }
-            // Hitbox RESETEAR 
             if (mouse.x >= centerX - 75 && mouse.x <= centerX + 75 &&
                 mouse.y >= centerY + 110 && mouse.y <= centerY + 155) {
                 document.getElementById('selNivel').value = "1"; 
@@ -288,7 +273,8 @@
                 const dist = Math.sqrt(Math.pow(mouse.x - c.posX, 2) + Math.pow(mouse.y - c.posY, 2));
                 if (dist <= c.radius && !c.isFading) {
                     c.isFading = true; 
-                    actualizarTelemetria();} // <-- AQUÍ LLAMAMOS AL CONTADOR
+                    actualizarTelemetria();
+                } 
             });
         }
     });
@@ -303,7 +289,6 @@
         ctx.fillText("▶ INICIAR", canvas.width / 2, canvas.height / 2 + 52);
     }
 
-    // Botones maximizados
     function drawThreeButtonsUI() {
         const btnWidth = 150; const btnHeight = 45; 
         const centerY = canvas.height / 2; const centerX = canvas.width / 2;
@@ -336,31 +321,19 @@
         drawThreeButtonsUI(); 
     }
 
-    // --- NUEVO: UI de Transición ---
     function drawTransitionUI() {
         ctx.fillStyle = "rgba(10, 10, 9, 0.8)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.fillStyle = "#00FFEA"; 
-        ctx.font = "bold 16px 'Press Start 2P', cursive"; 
-        ctx.textAlign = "center";
+        ctx.fillStyle = "#00FFEA"; ctx.font = "bold 16px 'Press Start 2P', cursive"; ctx.textAlign = "center";
         ctx.fillText("¡NIVEL DESPEJADO!", canvas.width / 2, canvas.height / 2 - 20);
-
-        ctx.fillStyle = "#FFD400"; 
-        ctx.font = "bold 12px 'Press Start 2P', cursive";
+        ctx.fillStyle = "#FFD400"; ctx.font = "bold 12px 'Press Start 2P', cursive";
         ctx.fillText(`PREPARANDO NIVEL ${currentLevel}...`, canvas.width / 2, canvas.height / 2 + 20);
     }
 
-    // --- NUEVO: UI de Victoria Final (Nivel 10) ---
     function drawGameWonUI() {
         ctx.fillStyle = "rgba(10, 10, 9, 0.9)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Letrero Superior
-        ctx.fillStyle = "#00FFEA"; 
-        ctx.font = "bold 20px 'Press Start 2P', cursive"; 
-        ctx.textAlign = "center";
+        ctx.fillStyle = "#00FFEA"; ctx.font = "bold 20px 'Press Start 2P', cursive"; ctx.textAlign = "center";
         ctx.fillText("¡SISTEMA PURGADO!", canvas.width / 2, canvas.height / 2 - 30);
 
-        // Mensaje personalizado según la dificultad
         const dif = document.getElementById('selDificultad').value;
         let msg = "";
         if (dif === 'facil') msg = "GAME COMPLETE";
@@ -368,7 +341,6 @@
         else if (dif === 'dificil') msg = "QUE HABILIDAD SEÑOR!";
 
         ctx.fillStyle = "#FFD400"; 
-        // Si es difícil (texto largo), achicamos un poquito la letra para que quepa perfecto
         ctx.font = dif === 'dificil' ? "bold 13px 'Press Start 2P', cursive" : "bold 16px 'Press Start 2P', cursive"; 
         ctx.fillText(msg, canvas.width / 2, canvas.height / 2 + 5);
 
@@ -377,12 +349,13 @@
 
     function animate() {
         requestAnimationFrame(animate);
-        // Esto borra el lienzo en cada frame dejándolo transparente, 
-    // permitiendo que se vea tu imagen de fondo del CSS
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // El lienzo se limpia por completo, dejando ver el CSS de fondo.
+        // Ni rastro de la imagen de Imgur aquí.
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         if (isMainMenu) return drawMainMenuUI();
-        if (isGameWon) return drawGameWonUI(); // Muestra la pantalla de victoria
+        if (isGameWon) return drawGameWonUI(); 
         if (isGameOver && circles.length === 0) return drawGameOverUI();
         
         if (isPaused) {
@@ -390,7 +363,6 @@
             return drawPauseUI();
         }
 
-        // Si está en transición, dibujamos el letrero y pausamos la física
         if (isTransitioning) {
             drawTransitionUI();
             return;
@@ -409,25 +381,18 @@
             if (c.isDead) circles.splice(i, 1);
         }
 
-        // --- NUEVA LÓGICA DE TRANSICIÓN Y VICTORIA ---
         if (!isGameOver && !isGameWon && !isPaused && !isTransitioning && spawnedThisLevel === CIRCLES_PER_LEVEL && circles.length === 0) {
-            
             if (currentLevel >= MAX_LEVELS) {
-                // Ganaste el juego completo
                 isGameWon = true;
                 const statusText = document.querySelector('.rp-status');
                 statusText.innerText = "[SISTEMA COMPLETADO]";
                 statusText.style.color = "#00FFEA";
             } else {
-                // Pasas al siguiente nivel
                 isTransitioning = true;
                 currentLevel++;
-                
-                // Actualizamos visualmente el HTML para que diga el nivel que se prepara
                 document.getElementById('lblNivel').innerText = currentLevel;
                 document.getElementById('selNivel').value = currentLevel; 
 
-                // Esperamos 2 segundos y arrancamos la siguiente oleada
                 transitionTimeout = setTimeout(() => {
                     isTransitioning = false;
                     startLevel();
