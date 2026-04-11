@@ -1,5 +1,5 @@
 /**
- * @fileoverview Sistema Phaethon V11 - Interfaz de Menús en Pirámide (Actividad 2.4)
+ * @fileoverview Sistema Phaethon V13 - Transiciones y Pantallas de Victoria (Actividad 2.4)
  */
 (() => {
     const canvas = document.getElementById("canvasGame");
@@ -14,11 +14,14 @@
     let totalEliminated = 0;
     let spawnedThisLevel = 0;
     let spawnInterval;
+    let transitionTimeout; // NUEVO: Para controlar el tiempo de espera entre niveles
     
     // Banderas de estado
     let isMainMenu = true; 
     let isGameOver = false;
     let isPaused = false;
+    let isTransitioning = false; // NUEVO: Pantalla entre niveles
+    let isGameWon = false;       // NUEVO: Pantalla final
 
     // Multiplicador de dificultad inicial 
     let diffScale = 1.0; 
@@ -47,7 +50,8 @@
     // --- LISTENERS DE LA CONSOLA ---
     
     document.getElementById('btnPausa').addEventListener('click', (e) => {
-        if (isMainMenu || isGameOver) return; 
+        // Evitamos pausar mientras cambia de nivel o si ya ganó/perdió
+        if (isMainMenu || isGameOver || isGameWon || isTransitioning) return; 
         if (isPaused) unpauseSystem();
         else pauseSystem();
     });
@@ -58,7 +62,7 @@
         else if (val === 'normal') diffScale = 1.0; 
         else if (val === 'dificil') diffScale = 0.6; 
 
-        if (!isMainMenu && !isGameOver) pauseSystem();
+        if (!isMainMenu && !isGameOver && !isGameWon && !isTransitioning) pauseSystem();
     });
 
     document.getElementById('selNivel').addEventListener('change', (e) => {
@@ -71,7 +75,12 @@
         const totalPosibles = MAX_LEVELS * CIRCLES_PER_LEVEL;
         document.getElementById('lblPorcentaje').innerText = Math.round((totalEliminated / totalPosibles) * 100) + '%';
 
-        if (!isMainMenu && !isGameOver) {
+        if (!isMainMenu && !isGameOver && !isGameWon) {
+            // Si estaba en medio de una transición, la cancelamos y pausamos
+            if (isTransitioning) {
+                clearTimeout(transitionTimeout);
+                isTransitioning = false;
+            }
             pauseSystem();
             circles = [];
             spawnedThisLevel = 0; 
@@ -157,7 +166,7 @@
 
     function spawnCircle() {
         if (spawnedThisLevel < CIRCLES_PER_LEVEL) {
-            let r = (Math.random() * 20 + 25) * diffScale; 
+            let r = (Math.random() * 20 + 35) * diffScale; 
             let speedMultiplier = 0.5 + (currentLevel * 0.4); 
             circles.push(new CircleC(r, speedMultiplier, (spawnedThisLevel + 1).toString()));
             spawnedThisLevel++;
@@ -165,42 +174,53 @@
     }
 
     function startLevel() {
-        if (currentLevel > MAX_LEVELS) {
-            document.querySelector('.rp-status').innerText = "[SISTEMA COMPLETADO]";
-            document.querySelector('.rp-status').style.color = "#00FFEA";
-            return;
-        }
         spawnedThisLevel = 0; circles = [];
         document.getElementById('lblNivel').innerText = currentLevel;
         document.getElementById('selNivel').value = currentLevel; 
         if(spawnInterval) clearInterval(spawnInterval);
         spawnInterval = setInterval(spawnCircle, 800);
+        
+        const statusText = document.querySelector('.rp-status');
+        statusText.innerText = "[TELEMETRÍA DE COMBATE]";
+        statusText.style.color = "#FFD400";
     }
 
     function arrancarPartida() {
-        isMainMenu = false; isGameOver = false; isPaused = false;
+        isMainMenu = false; isGameOver = false; isGameWon = false; 
+        isPaused = false; isTransitioning = false;
+        clearTimeout(transitionTimeout);
         document.getElementById('btnPausa').innerText = "⏸️ PAUSAR SISTEMA";
         
         currentLevel = parseInt(document.getElementById('selNivel').value);
         const valDif = document.getElementById('selDificultad').value;
         diffScale = valDif === 'facil' ? 1.5 : (valDif === 'dificil' ? 0.6 : 1.0);
 
+        // Resetea las eliminaciones según el nivel
         totalEliminated = (currentLevel - 1) * CIRCLES_PER_LEVEL;
         document.getElementById('lblEliminados').innerText = totalEliminated;
+        
+        // --- CORRECCIÓN: Fuerza la actualización del porcentaje en la pantalla ---
+        const totalPosibles = MAX_LEVELS * CIRCLES_PER_LEVEL;
+        document.getElementById('lblPorcentaje').innerText = Math.round((totalEliminated / totalPosibles) * 100) + '%';
+        
         startLevel();
     }
 
     function pararJuego() {
-        isGameOver = false; isMainMenu = true; isPaused = false;
-        document.getElementById('btnPausa').innerText = "⏸️ PAUSAR SISTEMA";
+        isGameOver = false; isMainMenu = true; isGameWon = false;
+        isPaused = false; isTransitioning = false;
+        clearTimeout(transitionTimeout);
         clearInterval(spawnInterval); circles = [];
+        
+        document.getElementById('btnPausa').innerText = "⏸️ PAUSAR SISTEMA";
         const statusText = document.querySelector('.rp-status');
         statusText.innerText = "[SISTEMA EN ESPERA]";
         statusText.style.color = "#00E5FF";
     }
 
     function failLevel() {
-        clearInterval(spawnInterval); circles = []; isGameOver = true; 
+        clearInterval(spawnInterval); circles = []; 
+        isGameOver = true; isTransitioning = false; clearTimeout(transitionTimeout);
         const statusText = document.querySelector('.rp-status');
         statusText.innerText = "[FALLO EN PERÍMETRO: GAME OVER]";
         statusText.style.color = "#FF3366";
@@ -216,7 +236,7 @@
     }
 
     canvas.addEventListener('mousemove', (e) => {
-        if (isMainMenu || isGameOver || isPaused) return; 
+        if (isMainMenu || isGameOver || isGameWon || isPaused || isTransitioning) return; 
         const mouse = getMousePos(e);
         circles.forEach(c => {
             if(c.isFading) return; 
@@ -236,32 +256,39 @@
             return; 
         }
 
-       if (isPaused || isGameOver) {
-    // Coordenadas para REINTENTAR (Basadas en centerX - 180 y ancho 160)
-    if (mouse.x >= centerX - 180 && mouse.x <= centerX - 20 &&
-        mouse.y >= centerY + 60 && mouse.y <= centerY + 120) {
-        arrancarPartida(); 
-        return;
-    }
-    // Coordenadas para SALIR (Basadas en centerX + 20 y ancho 160)
-    if (mouse.x >= centerX + 20 && mouse.x <= centerX + 180 &&
-        mouse.y >= centerY + 60 && mouse.y <= centerY + 120) {
-        pararJuego(); 
-        return;
-    }
-    // Coordenadas para RESETEAR (Basadas en centerX - 80 y ancho 160)
-    if (mouse.x >= centerX - 80 && mouse.x <= centerX + 80 &&
-        mouse.y >= centerY + 130 && mouse.y <= centerY + 190) {
-        document.getElementById('selNivel').value = "1"; 
-        arrancarPartida(); 
-        return;
-    }
-    return; 
-}
-        if (!isPaused && !isMainMenu && !isGameOver) {
+        // Si está en transición, bloqueamos los clics
+        if (isTransitioning) return;
+
+        // Lógica de menús (Pausa, Game Over y Game Won usan los mismos 3 botones)
+        if (isPaused || isGameOver || isGameWon) {
+            // Hitbox REINTENTAR 
+            if (mouse.x >= centerX - 160 && mouse.x <= centerX - 10 &&
+                mouse.y >= centerY + 50 && mouse.y <= centerY + 95) {
+                arrancarPartida(); 
+                return;
+            }
+            // Hitbox SALIR 
+            if (mouse.x >= centerX + 10 && mouse.x <= centerX + 160 &&
+                mouse.y >= centerY + 50 && mouse.y <= centerY + 95) {
+                pararJuego(); 
+                return;
+            }
+            // Hitbox RESETEAR 
+            if (mouse.x >= centerX - 75 && mouse.x <= centerX + 75 &&
+                mouse.y >= centerY + 110 && mouse.y <= centerY + 155) {
+                document.getElementById('selNivel').value = "1"; 
+                arrancarPartida(); 
+                return;
+            }
+            return; 
+        }
+
+        if (!isPaused && !isMainMenu && !isGameOver && !isGameWon) {
             circles.forEach(c => {
                 const dist = Math.sqrt(Math.pow(mouse.x - c.posX, 2) + Math.pow(mouse.y - c.posY, 2));
-                if (dist <= c.radius && !c.isFading) c.isFading = true; 
+                if (dist <= c.radius && !c.isFading) {
+                    c.isFading = true; 
+                    actualizarTelemetria();} // <-- AQUÍ LLAMAMOS AL CONTADOR
             });
         }
     });
@@ -270,63 +297,82 @@
     function drawMainMenuUI() {
         ctx.fillStyle = "rgba(10, 10, 9, 0.6)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "#00FFEA"; ctx.font = "bold 24px 'Press Start 2P', cursive"; ctx.textAlign = "center";
-        ctx.fillText("GODFINGER ARCADE", canvas.width / 2, canvas.height / 2 - 20);
+        ctx.fillText("BUBBLE PANIC", canvas.width / 2, canvas.height / 2 - 20);
         ctx.strokeStyle = "#FFD400"; ctx.strokeRect(canvas.width / 2 - 100, canvas.height / 2 + 20, 200, 50);
         ctx.fillStyle = "#FFD400"; ctx.font = "bold 12px 'Press Start 2P', cursive";
         ctx.fillText("▶ INICIAR", canvas.width / 2, canvas.height / 2 + 52);
     }
 
-   function drawThreeButtonsUI() {
-    // 1. Aumentamos el tamaño base (Ejemplo: de 120x40 a 160x60)
-    const btnWidth = 160; 
-    const btnHeight = 60; 
-    
-    const centerY = canvas.height / 2; 
-    const centerX = canvas.width / 2;
+    // Botones maximizados
+    function drawThreeButtonsUI() {
+        const btnWidth = 150; const btnHeight = 45; 
+        const centerY = canvas.height / 2; const centerX = canvas.width / 2;
+        ctx.font = "bold 11px 'Press Start 2P', cursive"; ctx.textAlign = "center";
 
-    // 2. Aumentamos el tamaño de la fuente (Ejemplo: de 10px a 14px)
-    ctx.font = "bold 14px 'Press Start 2P', cursive"; 
-    ctx.textAlign = "center";
+        ctx.fillStyle = "rgba(0, 255, 234, 0.1)"; ctx.fillRect(centerX - 160, centerY + 50, btnWidth, btnHeight);
+        ctx.strokeStyle = "#00FFEA"; ctx.strokeRect(centerX - 160, centerY + 50, btnWidth, btnHeight);
+        ctx.fillStyle = "#00FFEA"; ctx.fillText("↻ REINTENTAR", centerX - 85, centerY + 78);
 
-    // --- Botón 1: REINTENTAR ---
-    // Ajustamos la X para que no choque (centerX - (ancho + margen))
-    ctx.fillStyle = "rgba(0, 255, 234, 0.1)"; 
-    ctx.fillRect(centerX - 180, centerY + 60, btnWidth, btnHeight);
-    ctx.strokeStyle = "#00FFEA"; 
-    ctx.strokeRect(centerX - 180, centerY + 60, btnWidth, btnHeight);
-    ctx.fillStyle = "#00FFEA";
-    ctx.fillText("↻ REINTENTAR", centerX - 100, centerY + 95); // Ajustar centro del texto
+        ctx.fillStyle = "rgba(163, 58, 54, 0.1)"; ctx.fillRect(centerX + 10, centerY + 50, btnWidth, btnHeight);
+        ctx.strokeStyle = "#A33A36"; ctx.strokeRect(centerX + 10, centerY + 50, btnWidth, btnHeight);
+        ctx.fillStyle = "#A33A36"; ctx.fillText("■ SALIR", centerX + 85, centerY + 78);
 
-    // --- Botón 2: SALIR ---
-    ctx.fillStyle = "rgba(163, 58, 54, 0.1)"; 
-    ctx.fillRect(centerX + 20, centerY + 60, btnWidth, btnHeight);
-    ctx.strokeStyle = "#A33A36"; 
-    ctx.strokeRect(centerX + 20, centerY + 60, btnWidth, btnHeight);
-    ctx.fillStyle = "#A33A36";
-    ctx.fillText("■ SALIR", centerX + 100, centerY + 95);
-
-    // --- Botón 3: RESETEAR ---
-    // Bajamos un poco más este botón (centerY + 130) para que no choque con los de arriba
-    ctx.fillStyle = "rgba(184, 41, 255, 0.1)"; 
-    ctx.fillRect(centerX - 80, centerY + 130, btnWidth, btnHeight);
-    ctx.strokeStyle = "#B829FF"; 
-    ctx.strokeRect(centerX - 80, centerY + 130, btnWidth, btnHeight);
-    ctx.fillStyle = "#B829FF";
-    ctx.fillText("⟲ RESETEAR", centerX, centerY + 165);
-}
+        ctx.fillStyle = "rgba(184, 41, 255, 0.1)"; ctx.fillRect(centerX - 75, centerY + 110, btnWidth, btnHeight);
+        ctx.strokeStyle = "#B829FF"; ctx.strokeRect(centerX - 75, centerY + 110, btnWidth, btnHeight);
+        ctx.fillStyle = "#B829FF"; ctx.fillText("⟲ RESETEAR", centerX, centerY + 138);
+    }
 
     function drawGameOverUI() {
         ctx.fillStyle = "rgba(10, 10, 9, 0.85)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "#FF3366"; ctx.font = "bold 20px 'Press Start 2P', cursive"; ctx.textAlign = "center";
         ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 20);
-        drawThreeButtonsUI(); // Llama a la botonera piramidal
+        drawThreeButtonsUI(); 
     }
 
     function drawPauseUI() {
         ctx.fillStyle = "rgba(10, 10, 9, 0.85)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "#FFD400"; ctx.font = "bold 20px 'Press Start 2P', cursive"; ctx.textAlign = "center";
         ctx.fillText("SISTEMA PAUSADO", canvas.width / 2, canvas.height / 2 - 20);
-        drawThreeButtonsUI(); // Llama a la botonera piramidal
+        drawThreeButtonsUI(); 
+    }
+
+    // --- NUEVO: UI de Transición ---
+    function drawTransitionUI() {
+        ctx.fillStyle = "rgba(10, 10, 9, 0.8)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = "#00FFEA"; 
+        ctx.font = "bold 16px 'Press Start 2P', cursive"; 
+        ctx.textAlign = "center";
+        ctx.fillText("¡NIVEL DESPEJADO!", canvas.width / 2, canvas.height / 2 - 20);
+
+        ctx.fillStyle = "#FFD400"; 
+        ctx.font = "bold 12px 'Press Start 2P', cursive";
+        ctx.fillText(`PREPARANDO NIVEL ${currentLevel}...`, canvas.width / 2, canvas.height / 2 + 20);
+    }
+
+    // --- NUEVO: UI de Victoria Final (Nivel 10) ---
+    function drawGameWonUI() {
+        ctx.fillStyle = "rgba(10, 10, 9, 0.9)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Letrero Superior
+        ctx.fillStyle = "#00FFEA"; 
+        ctx.font = "bold 20px 'Press Start 2P', cursive"; 
+        ctx.textAlign = "center";
+        ctx.fillText("¡SISTEMA PURGADO!", canvas.width / 2, canvas.height / 2 - 30);
+
+        // Mensaje personalizado según la dificultad
+        const dif = document.getElementById('selDificultad').value;
+        let msg = "";
+        if (dif === 'facil') msg = "GAME COMPLETE";
+        else if (dif === 'normal') msg = "YOU WIN";
+        else if (dif === 'dificil') msg = "QUE HABILIDAD SEÑOR!";
+
+        ctx.fillStyle = "#FFD400"; 
+        // Si es difícil (texto largo), achicamos un poquito la letra para que quepa perfecto
+        ctx.font = dif === 'dificil' ? "bold 13px 'Press Start 2P', cursive" : "bold 16px 'Press Start 2P', cursive"; 
+        ctx.fillText(msg, canvas.width / 2, canvas.height / 2 + 5);
+
+        drawThreeButtonsUI(); 
     }
 
     function animate() {
@@ -335,11 +381,18 @@
         else { ctx.fillStyle = "#0D0C0B"; ctx.fillRect(0, 0, canvas.width, canvas.height); }
 
         if (isMainMenu) return drawMainMenuUI();
+        if (isGameWon) return drawGameWonUI(); // Muestra la pantalla de victoria
         if (isGameOver && circles.length === 0) return drawGameOverUI();
         
         if (isPaused) {
             circles.forEach(c => c.draw(ctx)); 
             return drawPauseUI();
+        }
+
+        // Si está en transición, dibujamos el letrero y pausamos la física
+        if (isTransitioning) {
+            drawTransitionUI();
+            return;
         }
 
         for (let i = 0; i < circles.length; i++) {
@@ -351,13 +404,34 @@
         for (let i = circles.length - 1; i >= 0; i--) {
             let c = circles[i];
             c.update(ctx);
-            if (!isGameOver && c.posY + c.radius < 0 && !c.isFading) failLevel();
+            if (!isGameOver && !isGameWon && c.posY + c.radius < 0 && !c.isFading) failLevel();
             if (c.isDead) circles.splice(i, 1);
         }
 
-        if (!isGameOver && spawnedThisLevel === CIRCLES_PER_LEVEL && circles.length === 0) {
-            currentLevel++;
-            setTimeout(startLevel, 2000);
+        // --- NUEVA LÓGICA DE TRANSICIÓN Y VICTORIA ---
+        if (!isGameOver && !isGameWon && !isPaused && !isTransitioning && spawnedThisLevel === CIRCLES_PER_LEVEL && circles.length === 0) {
+            
+            if (currentLevel >= MAX_LEVELS) {
+                // Ganaste el juego completo
+                isGameWon = true;
+                const statusText = document.querySelector('.rp-status');
+                statusText.innerText = "[SISTEMA COMPLETADO]";
+                statusText.style.color = "#00FFEA";
+            } else {
+                // Pasas al siguiente nivel
+                isTransitioning = true;
+                currentLevel++;
+                
+                // Actualizamos visualmente el HTML para que diga el nivel que se prepara
+                document.getElementById('lblNivel').innerText = currentLevel;
+                document.getElementById('selNivel').value = currentLevel; 
+
+                // Esperamos 2 segundos y arrancamos la siguiente oleada
+                transitionTimeout = setTimeout(() => {
+                    isTransitioning = false;
+                    startLevel();
+                }, 2000);
+            }
         }
     }
 
