@@ -377,8 +377,9 @@
 
     function animate() {
         requestAnimationFrame(animate);
-        if (isBgLoaded) ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
-        else { ctx.fillStyle = "#0D0C0B"; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+        // Esto borra el lienzo en cada frame dejándolo transparente, 
+    // permitiendo que se vea tu imagen de fondo del CSS
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         if (isMainMenu) return drawMainMenuUI();
         if (isGameWon) return drawGameWonUI(); // Muestra la pantalla de victoria
