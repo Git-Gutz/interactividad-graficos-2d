@@ -130,11 +130,6 @@ body.rp-theme {
     /* Configuración avanzada de Glassmorphism (Efecto Acrílico Oscuro) */
     backdrop-filter: blur(15px) saturate(150%) brightness(90%); 
     -webkit-backdrop-filter: blur(15px) saturate(150%) brightness(90%);
-    
-    /* Inyección de una imagen SVG generada en Base64 para simular una grilla metálica */
-    background-image: 
-        radial-gradient(circle at 10% 10%, rgba(41,45,50,0.4) 0%, rgba(31,34,38,0) 100%),
-        url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48ZyBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiM4Yzc4NjQiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTAgMGg0MHY0MEgwVjB6bTIwIDIwaDIwdjIwSDIWMjB6TTAgMjBoMjB2MjBIMFYyMHoyMCAwaDIwdjIwSDIwVjB6Ii8+PC9nPjwvZz48L3N2Zz4=');
 }
 
 /* Pseudo-clase hover para feedback visual de interacción */
